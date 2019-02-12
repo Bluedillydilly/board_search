@@ -6,32 +6,47 @@
 import basc_py4chan as basc
 
 def main():
+    """
+    main function.
+    """
     all_boards = basc.get_all_boards()
     print(all_boards)
     interested_boards = ["wg"]
     interested_boards = [board for board in all_boards if board.name in interested_boards]
-    print( interested_boards )
-    find_words("lain", interested_boards[0] )
+    print(interested_boards)
+    find_word("Torrent", interested_boards[0])
 
-"""
-    Searchs for word(s) on a board.
-"""
-def find_words( words, board ):
+
+def find_word(words, board):
+    """
+    Searchs for a on a board.
+    """
     word = words # assume one word for now
-    all_t = board.get_all_thread_ids()
-    post_irl_word = []
-    for id in all_t:
-        thread = basc.Thread( board, id)
-        thread.expand()
-        print("Thread: ", thread)
-        t_posts = thread.all_posts
-        print("HELLO: ",t_posts)
-        if t_posts == [None]:
+    print("Board of interest: ", board)
+    all_ids = board.get_all_thread_ids()
+    for t_id in all_ids:
+        thread = basc.Thread(board, t_id)
+        thread.update(force=True)
+        if thread.posts == [None]:
             continue
-        for post in t_posts:
-            subject = "" if not post.subject else post.subject
-            text = subject + post.text_comment
-            if word in text:
-                post_irl_word += post.url
-    print(post_irl_word)
+        if word_in_thread(word, thread):
+            print("------------")
+            print("Thread with word: ",thread.url)
+            print("POST WITH WORD URL: ", thread.url)
+
+def word_in_thread(word, thread):
+    """
+    Returns whether or not a word is in a thread.
+    """
+    words_in_thread = ""
+    for post in thread:
+        word_in_post(word, post)
+
+def word_in_post(word, post):
+    """
+    TODO
+    """
+    pass
+
 main()
+
