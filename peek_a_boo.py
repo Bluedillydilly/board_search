@@ -11,10 +11,11 @@ def main():
     main function.
     """
     all_boards = basc.get_all_boards()
-    interested_boards = ["g"]
+    interested_boards = ["g", "wg", "wsg", "mu", "b", "sci"]
     interested_boards = [board for board in all_boards if board.name in interested_boards]
-    words = "cyberpunk"
-    find_word(words, interested_boards[0])
+    word = "machine learning"
+    for board in interested_boards:
+        find_word(word, board)
 
 
 def find_word(words, board):
@@ -35,8 +36,10 @@ def find_word(words, board):
             continue
         print("Thread with word:", thread.url)
         for word_posts in occurrences:
-            print("--New Post--")
-            print(word_posts.text_comment)
+            dash = "-----"
+            print(dash, "New Post", dash, "\n", dash, word_posts.url)
+            print("Title:", word_posts.subject, "\n", word_posts.text_comment)
+            print(dash, "End Post", dash, "\n")
         #print("Thread with word: ", thread.url)
         #print("POST WITH WORD URL: ", thread.url)
 
@@ -64,7 +67,6 @@ def word_in_post(word, post):
     if match is None:
         match = False
     if match:
-        print(match)
         return post
     return None
 
