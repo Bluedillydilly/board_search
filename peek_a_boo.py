@@ -3,19 +3,25 @@
     Maybe some analytics?
 """
 
-import basc_py4chan as basc
 import re
+import json
+import basc_py4chan as basc
 
 def main():
     """
     main function.
     """
     all_boards = basc.get_all_boards()
-    interested_boards = ["g", "wg", "wsg", "mu", "b", "sci"]
+    interested_boards = ["g"]
     interested_boards = [board for board in all_boards if board.name in interested_boards]
-    word = "machine learning"
+    word = "linux"
+
+    f_name = "post.txt"
+    output_file = open(f_name, "a")
     for board in interested_boards:
-        find_word(word, board)
+        post_text = find_word(word, board)
+        json.dump(post_text, output_file, indent=2)
+    output_file.close()
 
 
 def find_word(words, board):
@@ -23,6 +29,8 @@ def find_word(words, board):
     Searchs for a on a board.
     """
     word = words # assume one word for now
+    word_post_text = {}
+
     print("Board of interest: ", board)
     print("Word of interest:", word)
     all_ids = board.get_all_thread_ids()
@@ -40,8 +48,8 @@ def find_word(words, board):
             print(dash, "New Post", dash, "\n", dash, word_posts.url)
             print("Title:", word_posts.subject, "\n", word_posts.text_comment)
             print(dash, "End Post", dash, "\n")
-        #print("Thread with word: ", thread.url)
-        #print("POST WITH WORD URL: ", thread.url)
+            word_post_text[word_posts.url] = (word_posts.subject, word_posts.text_comment)
+    return word_post_text
 
 def word_in_thread(word, thread):
     """
