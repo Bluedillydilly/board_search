@@ -6,23 +6,43 @@
 import re
 import json
 import basc_py4chan as basc
+import time
 
 def main():
     """
     main function.
     """
+    # variables
+    f_name = "post.txt" # name of file output to
+    SAVE_TEXT = False # whether or not to output text to file
+
     all_boards = basc.get_all_boards()
-    interested_boards = ["g"]
+    interested_boards = target_boards()
+    print(interested_boards)
     interested_boards = [board for board in all_boards if board.name in interested_boards]
-    word = "linux"
+    print(interested_boards)
+    search_for = str(input("Word(s) to search for (case insensitive): "))
+    SAVE_TEXT = True if str(input("Save output to file?(y/n) ")) is "y" else False
 
-    f_name = "post.txt"
-    output_file = open(f_name, "a")
-    for board in interested_boards:
-        post_text = find_word(word, board)
-        json.dump(post_text, output_file, indent=2)
-    output_file.close()
+    if not SAVE_TEXT:
+        start = time.time()
+        for board in interested_boards:
+            post_text = find_word(search_for, board)
+        print(time.time() - start)
+    else:
+        output_file = open(f_name, "a") # open file to save text to
+        for board in interested_boards: # searches for search_for in each board of interest
+            post_text = find_word(search_for, board)
+            json.dump(post_text, output_file, indent=2) # outputs posts with search_for to file
+        output_file.close()
 
+def target_boards():
+    """
+
+    """
+    user_question = "Enter board(s) of interest. Seperate by comma. eg 'g, vg, v': "
+    user_input = str(input(user_question)).split(", ")
+    return user_input
 
 def find_word(words, board):
     """
