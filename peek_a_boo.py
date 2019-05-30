@@ -15,14 +15,28 @@ def main():
     # variables
     f_name = "post.txt" # name of file output to
     SAVE_TEXT = False # whether or not to output text to file
-
-    all_boards = basc.get_all_boards()
+    CHECK_ALL = "all" # checks all boards for word(s)
+    ALL_BOARDS = basc.get_all_boards() # a list of all board objects
+    
     interested_boards = target_boards()
     print(interested_boards)
-    interested_boards = [board for board in all_boards if board.name in interested_boards]
+
+    # get all relevant boards to the search
+    if CHECK_ALL in interested_boards:
+        interested_boards = ALL_BOARDS 
+    else:
+        interested_boards = [board for board in ALL_BOARDS if board.name in interested_boards]
     print(interested_boards)
+    
+    # check if user provided any valid boards
+    if not interested_boards:
+        print("no valid board selected")
+        return 
+
+    # gets the word(s) of interest
     search_for = str(input("Word(s) to search for (case insensitive): "))
-    SAVE_TEXT = True if str(input("Save output to file?(y/n) ")) is "y" else False
+    # whether to output text to a file
+    SAVE_TEXT = True if str(input("Save results to file?(y/n) ")) is "y" else False
 
     if not SAVE_TEXT:
         start = time.time()
@@ -40,7 +54,7 @@ def target_boards():
     """
 
     """
-    user_question = "Enter board(s) of interest. Seperate by comma. eg 'g, vg, v': "
+    user_question = "Enter board(s) of interest. Seperate by comma. eg 'g, vg, v'\nEnter 'all' for all boards: "
     user_input = str(input(user_question)).split(", ")
     return user_input
 
