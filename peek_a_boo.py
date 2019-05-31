@@ -39,10 +39,10 @@ def main():
     SAVE_TEXT = True if str(input("Save results to file?(y/n) ")) is "y" else False
 
     if not SAVE_TEXT:
-        start = time.time()
+        start = time.time() # time checking
         for board in interested_boards:
             post_text = find_word(search_for, board)
-        print(time.time() - start)
+        print("Time to complete: ", time.time() - start) # time checking
     else:
         output_file = open(f_name, "a") # open file to save text to
         for board in interested_boards: # searches for search_for in each board of interest
