@@ -8,6 +8,10 @@ import json
 import basc_py4chan as basc
 import time
 
+#thread stuff
+import logging
+import threading
+
 def main():
     """
     main function.
@@ -26,29 +30,32 @@ def main():
         interested_boards = ALL_BOARDS 
     else:
         interested_boards = [board for board in ALL_BOARDS if board.name in interested_boards]
-    print(interested_boards)
     
     # check if user provided any valid boards
     if not interested_boards:
-        print("no valid board selected")
+        print("no valid boards selected")
         return 
 
     # gets the word(s) of interest
     search_for = str(input("Word(s) to search for (case insensitive): "))
     # whether to output text to a file
-    SAVE_TEXT = True if str(input("Save results to file?(y/n) ")) is "y" else False
+    SAVE_FILE = open(f_name, "a") if str(input("Save results to " + f_name + "?(y/n) ")) is "y" else False
 
-    if not SAVE_TEXT:
-        start = time.time() # time checking
-        for board in interested_boards:
-            post_text = find_word(search_for, board)
-        print("Time to complete: ", time.time() - start) # time checking
-    else:
-        output_file = open(f_name, "a") # open file to save text to
-        for board in interested_boards: # searches for search_for in each board of interest
-            post_text = find_word(search_for, board)
-            json.dump(post_text, output_file, indent=2) # outputs posts with search_for to file
-        output_file.close()
+    threads = [threading.Thread(target=thread_function, args=(search_for, board, SAVE_FILE)) for 
+        board in interested_boards]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+    if SAVE_FILE:
+        SAVE_FILE.close()
+
+def thread_function(search_for, board, file):
+    logging.info("Thread %s: starting", board.name)
+    results = find_word(search_for, board)
+    if file:
+        json.dump(results, file, indent=2)
+    logging.info("Thread %s: finishing", board.name)
 
 def target_boards():
     """
@@ -64,9 +71,8 @@ def find_word(words, board):
     """
     word = words # assume one word for now
     word_post_text = {}
+    dash = "-----"
 
-    print("Board of interest: ", board)
-    print("Word of interest:", word)
     all_ids = board.get_all_thread_ids()
     for t_id in all_ids:
         thread = basc.Thread(board, t_id)
@@ -78,7 +84,6 @@ def find_word(words, board):
             continue
         print("Thread with word:", thread.url)
         for word_posts in occurrences:
-            dash = "-----"
             print(dash, "New Post", dash, "\n", dash, word_posts.url)
             print("Title:", word_posts.subject, "\n", word_posts.text_comment)
             print(dash, "End Post", dash, "\n")
@@ -112,4 +117,7 @@ def word_in_post(word, post):
         return post
     return None
 
-main()
+if __name__ == "__main__":
+    format = "\n\t%(asctime)s: %(message)s\n"
+    logging.basicConfig(format=format, level=logging.INFO,datefmt="%H:%M:%S")
+    main()
