@@ -18,7 +18,7 @@ def main():
     """
     # variables
     f_name = "post.txt" # name of file output to
-    SAVE_TEXT = False # whether or not to output text to file
+    #SAVE_TEXT = False # whether or not to output text to file
     CHECK_ALL = "all" # checks all boards for word(s)
     ALL_BOARDS = basc.get_all_boards() # a list of all board objects
     
