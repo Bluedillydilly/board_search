@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 """
     IDK yet, just playing around with basc_py4chan.
     Maybe some analytics?
@@ -50,12 +51,12 @@ def main():
     if SAVE_FILE:
         SAVE_FILE.close()
 
-def thread_function(search_for, board, file):
-    logging.info("Thread %s: starting", board.name)
+def thread_function(search_for, board, saveToFile):
+    #logging.info("Thread %s: starting", board.name)
     results = find_word(search_for, board)
-    if file:
-        json.dump(results, file, indent=2)
-    logging.info("Thread %s: finishing", board.name)
+    if saveToFile:
+        json.dump(results, saveToFile, indent=2)
+    #logging.info("Thread %s: finishing", board.name)
 
 def target_boards():
     """
