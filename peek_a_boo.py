@@ -12,35 +12,28 @@ import logging
 import threading
 
 # local imports
-from peek_utils import find_phrase, all_board_names
+from peek_utils import FindPhrase, AllBoards, IsBoard
 
-def main():
+def Main():
     f_name = "post.txt" # name of file output to
-    #SAVE_TEXT = False # whether or not to output text to file
-    CHECK_ALL = ["all"] # checks all boards for word(s)
-    ALL_BOARDS = all_board_names() # a list of all board objects
-    interested_boards = target_boards()
+    searchBoards = TargetBoards()
 
     # get all relevant boards to the search
-    if CHECK_ALL == interested_boards:
-        interested_boards = ALL_BOARDS 
-    else:
-        interested_boards = [board for board in ALL_BOARDS if board.name in interested_boards]
+    searchBoards = AllBoards() if searchBoards == ["all"] else [b for b in searchBoards if IsBoard(b)]
     
     # check if user provided any valid boards
-    if not interested_boards:
+    if not searchBoards:
         print("no valid boards selected!")
-        main() 
+        Main() 
+        exit()
     else:
-        print("Boards selected:", ", ".join(list(map(lambda x: x.name, interested_boards))))
+        print("Boards selected:", ", ".join(list(map(lambda x: x.name, searchBoards))))
 
-    # gets the word(s) of interest
     search_for = str(input("Word(s) to search for (case insensitive): "))
-    # whether to output text to a file
     SAVE_FILE = open(f_name, "a") if str(input("Save results to " + f_name + "?(y/n) ")) == "y" else False
 
-    threads = [threading.Thread(target=thread_function, args=(search_for, board, SAVE_FILE)) for 
-        board in interested_boards]
+    threads = [threading.Thread(target=ThreadFunction, args=(search_for, board, SAVE_FILE)) for 
+        board in searchBoards]
     # start threads
     for t in threads:
         t.start()
@@ -50,21 +43,20 @@ def main():
     if SAVE_FILE:
         SAVE_FILE.close()
 
-def thread_function(search_for, board, saveToFile):
+def ThreadFunction(search_for, board, saveToFile):
     logging.info("Thread %s: starting", board.name)
-    results = find_phrase(search_for, board)
+    results = FindPhrase(search_for, board)
     if saveToFile:
         json.dump(results, saveToFile, indent=2)
     logging.info("Thread %s: finishing", board.name)
 
-def target_boards():
+def TargetBoards():
     user_question = "Enter board(s) of interest. Seperate by comma. eg 'g, vg, v'\nEnter 'all' for all boards: "
-    user_boards = str(input(user_question)).split(", ")
+    user_boards = str(input(user_question)).lower().split(", ")
     return user_boards
-
 
 
 if __name__ == "__main__":
     format = "\n\t%(asctime)s: %(message)s\n"
     logging.basicConfig(format=format, level=logging.INFO,datefmt="%H:%M:%S")
-    main()
+    Main()

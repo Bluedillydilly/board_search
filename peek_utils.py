@@ -2,7 +2,7 @@ import re
 import basc_py4chan as basc
 
 
-def thread_occurrance(phrase, thread):
+def ThreadOccurrance(phrase, thread):
     """
     Returns whether or not a word is in a thread.
 
@@ -12,29 +12,28 @@ def thread_occurrance(phrase, thread):
     """
     valid_posts = []
     for post in thread.all_posts:
-        result = post_occurrance(phrase, post)
-        if result != [] and result is not None:
+        result = PostOccurrance(phrase, post)
+        if result:
             valid_posts.append(result)
     return valid_posts
 
 
-def post_occurrance(phrase, post):
+def PostOccurrance(phrase, post):
     """
     @param word
     """
     subject = "" if not post.subject else post.subject
     words_in_post = subject + post.text_comment
-    if not words_in_post:
-        return None
+    #if words_in_post == "":
+    #    return False
     regex = r".*[^a-zA-Z]"+phrase+r"[^a-zA-Z].*"
     match = re.match(regex, words_in_post, re.I)
     if match == None:
-        match = False
-    if match:
+        return False
+    else:
         return post
-    return None
 
-def find_phrase(phrase, board):
+def FindPhrase(phrase, board):
     """
     Searchs for a on a board.
     """
@@ -48,7 +47,7 @@ def find_phrase(phrase, board):
         thread.update(force=True)
         if thread.posts == [None]:
             continue
-        occurrences = thread_occurrance(phrase, thread)
+        occurrences = ThreadOccurrance(phrase, thread)
         if occurrences == []:
             continue
         print("Thread with word:", thread.url)
@@ -60,8 +59,15 @@ def find_phrase(phrase, board):
     return word_post_text
 
 
-def all_board_names():
+def AllBoards():
     return basc.get_all_boards()
+
+def IsBoard(name) -> bool:
+    try:
+        basc.Board(name).title
+        return True
+    except KeyError:
+        return False
 
 
 """
